@@ -4,7 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import Home from '../pages/Patient/Home';
 import DoctorPortfolio from '../pages/Patient/DoctorPortfolio';
 import Blog from '../pages/Patient/Blog';
-import About from '../pages/Patient/About';
+import Contact from '../pages/Patient/Contact';
 
 //Layouts
 import PatientLayout from '../layouts/PatientLayout';
@@ -17,7 +17,7 @@ const AppRoutes = () => {
         <Route index element={<Home />} />
         <Route path="/doctors" element={<DoctorPortfolio />} />
         <Route path="/blogs" element={<Blog />} />
-        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
       </Route>
 
       {/* Doctor Routes */}
