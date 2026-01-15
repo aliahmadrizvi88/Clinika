@@ -35,11 +35,12 @@ const Doctor = () => {
                   </h3>
 
                   <p className="flex items-center justify-baseline gap-2">
-                    <BriefcaseMedical size={22} /> {doc.specialization}
+                    <BriefcaseMedical size={22} strokeWidth={1.25} />
+                    {doc.specialization}
                   </p>
 
                   <p className="flex items-center justify-baseline gap-2">
-                    <Mail size={22} />
+                    <Mail size={22} strokeWidth={1.25} />
                     {doc.email}
                   </p>
                 </div>

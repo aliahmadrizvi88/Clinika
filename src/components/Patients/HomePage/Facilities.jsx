@@ -23,12 +23,11 @@ const Facilities = () => {
     },
     {
       id: 4,
-      name: 'Waiting Room',
+      name: 'Waiting Area',
       image: room,
     },
   ];
 
-  // Create extended array for infinite loop effect
   const extendedImages = [...images, ...images, ...images];
   const [activeIndex, setActiveIndex] = useState(images.length);
   const [isTransitioning, setIsTransitioning] = useState(true);
@@ -81,9 +80,9 @@ const Facilities = () => {
           {extendedImages.map((item, i) => (
             <div
               key={`${item.id}-${i}`}
-              className={`flex-shrink-0 mx-3 transition-all duration-500 ${
+              className={`shrink-0 mx-3 transition-all duration-500  rounded-b-xl ${
                 i === activeIndex
-                  ? 'scale-110 opacity-100'
+                  ? 'scale-110 opacity-100 shadow-lg shadow-[#3bbb9c] duration-500'
                   : 'scale-90 opacity-60'
               }`}
               style={{ width: '256px' }}
@@ -93,7 +92,7 @@ const Facilities = () => {
                 alt={item.name}
                 className="w-full h-80 object-cover rounded-lg shadow-lg"
               />
-              <p className="text-center mt-3 font-medium text-gray-700">
+              <p className="text-center mt-3 pb-2 font-semibold text-gray-500">
                 {item.name}
               </p>
             </div>
