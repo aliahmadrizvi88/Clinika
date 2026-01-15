@@ -2,6 +2,8 @@ import React from 'react';
 // import Deparments from '../../components/Patients/HomePage/Deparments';
 import Certification from '../../components/Patients/HomePage/Certification';
 import CoreValue from '../../components/Patients/HomePage/CoreValue';
+import Doctor from '../../components/Patients/HomePage/Doctor';
+import Facilities from '../../components/Patients/HomePage/Facilities';
 
 const Home = () => {
   return (
@@ -41,7 +43,8 @@ const Home = () => {
 
       <Certification />
       <CoreValue />
-
+      <Doctor />
+      <Facilities />
       {/* <Deparments /> */}
     </div>
   );
