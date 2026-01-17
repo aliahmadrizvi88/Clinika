@@ -10,6 +10,7 @@ import Contact from '../pages/Patient/Contact';
 import Dashboard from '../pages/Doctor/Dashboard';
 import PatientList from '../pages/Doctor/PatientList';
 import DoctorProfile from '../pages/Doctor/DoctorProfile';
+import Appointment from '../pages/Doctor/Appointment';
 
 //Auth Routes
 import DocSignIn from '../pages/Doctor/auth/DocSignIn';
@@ -18,6 +19,9 @@ import DocSignUp from '../pages/Doctor/auth/DocSignUp';
 //Layouts
 import PatientLayout from '../layouts/PatientLayout';
 import DoctorLayout from '../layouts/DoctorLayout';
+import AuthLayout from '../layouts/AuthLayout';
+
+import DoctorGuard from '../guards/DoctorGuard';
 
 const AppRoutes = () => {
   return (
@@ -31,15 +35,20 @@ const AppRoutes = () => {
       </Route>
 
       {/* Doctor Routes */}
-      <Route path="/doctor-side" element={<DoctorLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="list" element={<PatientList />} />
-        <Route path="profile" element={<DoctorProfile />} />
+      <Route element={<DoctorGuard />}>
+        <Route path="/doctor-side" element={<DoctorLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="list" element={<PatientList />} />
+          <Route path="profile" element={<DoctorProfile />} />
+          <Route path="appointment" element={<Appointment />} />
+        </Route>
       </Route>
 
       {/* Auth Routes */}
-
-      <Router path="/auth"></Router>
+      <Route path="/auth" element={<AuthLayout />}>
+        <Route path="doc-signIn" element={<DocSignIn />} />
+        <Route path="doc-signUp" element={<DocSignUp />} />
+      </Route>
     </Routes>
   );
 };

@@ -1,10 +1,57 @@
-import React from 'react';
-import Error from '../../../components/Error';
+import React, { useState } from 'react';
+import Input from '../../../components/Input';
+import Button_01 from '../../../components/Button_01';
+import { Mail, Eye, EyeOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const DocSignIn = () => {
+  const [showPassword, setShowPassword] = useState(false);
   return (
-    <div>
-      <Error />
+    <div className="flex justify-center items-center min-h-screen ">
+      <div className="border border-gray-300 rounded-2xl text-center px-20 py-25">
+        <div className="flex items-center gap-2">
+          <img src="/public/favicon.svg" alt="" className="w-20" />
+          <h1 className="text-4xl font-extrabold text-[#3bbb9c]">
+            Doctor's Login
+          </h1>
+        </div>
+        <p className="py-2 text-md font-light">
+          Welcome Back Doctor Please Enter your credintals to Login
+        </p>
+
+        <form action="#">
+          <span className="flex justify-center items-center gap-1 my-12">
+            <Input type={'email'} label={'Email'} id={'email'} />
+            <div className="rounded-full border border-gray-300 p-3 hover:border-[#3bbb9c] hover:text-[#3bbb9c] duration-300 cursor-pointer">
+              <Mail strokeWidth={1.25} />
+            </div>
+          </span>
+
+          <span className="flex justify-center items-center gap-1 my-12 ">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              label={'Password'}
+              id={'password'}
+            />
+            <button
+              className="rounded-full border border-gray-300 p-3 hover:border-[#3bbb9c] hover:text-[#3bbb9c] cursor-pointer"
+              onClick={() => setShowPassword((prev) => !prev)}
+            >
+              {showPassword ? (
+                <EyeOff strokeWidth={1.25} />
+              ) : (
+                <Eye strokeWidth={1.25} />
+              )}
+            </button>
+          </span>
+
+          <Button_01 label={'Login'} className="my-15" />
+        </form>
+
+        <Link to="/auth/doc-signUp" className="text-[#3bbb9c]">
+          Don't have a account?
+        </Link>
+      </div>
     </div>
   );
 };

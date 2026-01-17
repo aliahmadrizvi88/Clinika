@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { HospitalContext } from './HospitalContext';
 import axios from 'axios';
 
+const URL = import.meta.env.VITE_API_URL;
+
 const HospitalProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -11,9 +13,7 @@ const HospitalProvider = ({ children }) => {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.get(
-        'https://doc-clinic-backend.vercel.app/api/doctors/alldoctors'
-      );
+      const response = await axios.get(`${URL}/doctors/alldoctors`);
       if (!response) {
         throw new Error('Failed to fetch Error');
       }

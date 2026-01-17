@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useHospital } from '../../../context/useHospital';
 import { Mail, BriefcaseMedical } from 'lucide-react';
+import Loader from '../../Loader';
 
 const Doctor = () => {
   const { fetchDoctor, doctor, error, loading } = useHospital();
@@ -10,7 +11,11 @@ const Doctor = () => {
   }, []);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex justify-center items-center">
+        <Loader />
+      </div>
+    );
   }
 
   if (error) {
