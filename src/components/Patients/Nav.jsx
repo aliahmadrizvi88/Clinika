@@ -12,7 +12,11 @@ const Nav = () => {
 
   return (
     <div className="flex px-10 py-5 justify-between items-center bg-linear-to-r from-[#2a89b9] via-[#37a2ad] to-[#3bbb9c]">
-      <h1 className="text-4xl font-extrabold text-white">Logo</h1>
+      <img
+        src="/public/favicon.svg"
+        alt=""
+        className="h-20 w-max bg-white rounded-full"
+      />
       <nav className="flex gap-10">
         <NavLink to="/" className={linkClasses}>
           Home

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const URL = import.meta.vite.VITE_API_URL;
+const URL = import.meta.env.VITE_API_URL;
 
 const api = axios.create({
   baseURL: URL,
@@ -17,7 +17,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 export default api;

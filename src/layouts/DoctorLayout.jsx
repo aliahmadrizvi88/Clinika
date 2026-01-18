@@ -4,9 +4,12 @@ import Sidebar from '../components/Sidebar';
 
 const DoctorLayout = () => {
   return (
-    <div>
+    <div className="flex h-screen overflow-hidden bg-gray-50">
+      {/* Sidebar */}
       <Sidebar />
-      <main className="flex-1 max-h-screen bg-gray-50 p-6">
+
+      {/* Main content */}
+      <main className="flex-1 overflow-y-auto p-6">
         <Outlet />
       </main>
     </div>
