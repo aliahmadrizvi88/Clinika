@@ -11,6 +11,7 @@ import {
   EyeOff,
   BriefcaseMedical,
   CreativeCommons,
+  Phone,
 } from 'lucide-react';
 
 const DocSignUp = () => {
@@ -26,6 +27,7 @@ const DocSignUp = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    phone: '',
     specialization: '',
     licence_number: '',
   });
@@ -33,6 +35,7 @@ const DocSignUp = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // ✅ Handles ALL input changes
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({
@@ -41,33 +44,40 @@ const DocSignUp = () => {
     }));
   };
 
+  // ✅ Safe submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    setLoading(true);
-    setError(null);
+    const payload = {
+      first_name: formData.firstname.trim(),
+      last_name: formData.lastname.trim(),
+      email: formData.email.trim(),
+      password: formData.password,
+      phone: formData.phone.trim(),
+      specialization: formData.specialization.trim(),
+      licence_number: formData.licence_number.trim(),
+    };
+
+    console.log('REGISTER PAYLOAD:', payload);
 
     try {
-      const res = await api.post('/auth/register', {
-        firstname: formData.firstname,
-        lastname: formData.lastname,
-        email: formData.email,
-        password: formData.password,
-        specialization: formData.specialization,
-        licence_number: formData.licence_number,
-      });
+      setLoading(true);
 
-      // Save auth state
+      const res = await api.post('/auth/register', payload);
+
+      // Save auth data
       login(res.data.doctor, res.data.token);
 
-      // Redirect to dashboard
+      // Redirect
       navigate('/doctor-side/dashboard');
     } catch (err) {
+      console.error(err.response?.data || err);
       setError(err.response?.data?.message || 'Signup failed');
     } finally {
       setLoading(false);
@@ -76,7 +86,7 @@ const DocSignUp = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <div className="border border-gray-300 rounded-2xl text-center px-20 py-10 w-full max-w-3xl">
+      <div className="border border-gray-300 rounded-2xl px-20 py-10 w-full max-w-3xl text-center">
         <div className="flex items-center justify-center gap-2 mb-4">
           <img src="/public/favicon.svg" alt="Logo" className="w-20" />
           <h1 className="text-4xl font-extrabold text-[#3bbb9c]">
@@ -84,14 +94,14 @@ const DocSignUp = () => {
           </h1>
         </div>
 
-        <p className="py-2 text-md font-light mb-6">
+        <p className="text-md font-light mb-6">
           Please enter your information carefully
         </p>
 
         {error && <p className="text-red-500 mb-4 text-sm">{error}</p>}
 
         <form onSubmit={handleSubmit}>
-          {/* Name */}
+          {/* Names */}
           <div className="flex gap-4 my-8">
             <Input
               type="text"
@@ -138,14 +148,10 @@ const DocSignUp = () => {
             />
             <button
               type="button"
-              onClick={() => setShowPassword((prev) => !prev)}
+              onClick={() => setShowPassword((p) => !p)}
               className="rounded-full border border-gray-300 p-3"
             >
-              {showPassword ? (
-                <EyeOff strokeWidth={1.25} />
-              ) : (
-                <Eye strokeWidth={1.25} />
-              )}
+              {showPassword ? <EyeOff /> : <Eye />}
             </button>
           </div>
 
@@ -161,15 +167,26 @@ const DocSignUp = () => {
             />
             <button
               type="button"
-              onClick={() => setShowConfirm((prev) => !prev)}
+              onClick={() => setShowConfirm((p) => !p)}
               className="rounded-full border border-gray-300 p-3"
             >
-              {showConfirm ? (
-                <EyeOff strokeWidth={1.25} />
-              ) : (
-                <Eye strokeWidth={1.25} />
-              )}
+              {showConfirm ? <EyeOff /> : <Eye />}
             </button>
+          </div>
+
+          {/* Phone */}
+          <div className="flex items-center gap-2 my-8">
+            <Input
+              type="text"
+              label="Phone"
+              id="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+            />
+            <div className="rounded-full border border-gray-300 p-3">
+              <Phone />
+            </div>
           </div>
 
           {/* Specialization */}
@@ -183,7 +200,7 @@ const DocSignUp = () => {
               required
             />
             <div className="rounded-full border border-gray-300 p-3">
-              <BriefcaseMedical strokeWidth={1.25} />
+              <BriefcaseMedical />
             </div>
           </div>
 
@@ -198,7 +215,7 @@ const DocSignUp = () => {
               required
             />
             <div className="rounded-full border border-gray-300 p-3">
-              <CreativeCommons strokeWidth={1.25} />
+              <CreativeCommons />
             </div>
           </div>
 

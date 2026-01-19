@@ -3,12 +3,22 @@ import { AuthContext } from './AuthContext';
 
 const AuthProvider = ({ children }) => {
   const [authState, setAuthState] = useState(() => {
-    const storedToken = localStorage.getItem('doc_token');
-    const storedDoctor = localStorage.getItem('doc_data');
+    const token = localStorage.getItem('doc_token');
+    const doctorRaw = localStorage.getItem('doc_data');
+
+    let doctor = null;
+
+    try {
+      doctor = doctorRaw ? JSON.parse(doctorRaw) : null;
+    } catch (err) {
+      console.error('Invalid doctor data in localStorage, clearing it', err);
+      localStorage.removeItem('doc_data');
+      doctor = null;
+    }
 
     return {
-      doctor: storedDoctor ? JSON.parse(storedDoctor) : null,
-      token: storedToken || null,
+      doctor,
+      token,
       loading: false,
     };
   });

@@ -35,14 +35,14 @@ const AppRoutes = () => {
       </Route>
 
       {/* Doctor Routes */}
-      {/* <Route element={<DoctorGuard />}> */}
-      <Route path="/doctor-side" element={<DoctorLayout />}>
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="list" element={<PatientList />} />
-        <Route path="profile" element={<DoctorProfile />} />
-        <Route path="appointment" element={<Appointment />} />
+      <Route element={<DoctorGuard />}>
+        <Route path="/doctor-side" element={<DoctorLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="list" element={<PatientList />} />
+          <Route path="profile" element={<DoctorProfile />} />
+          <Route path="appointment" element={<Appointment />} />
+        </Route>
       </Route>
-      {/* </Route> */}
 
       {/* Auth Routes */}
       <Route path="/auth" element={<AuthLayout />}>

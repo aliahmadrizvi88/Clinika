@@ -1,8 +1,17 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { HomeIcon, UserIcon, List, ClipboardClock, LogOut } from 'lucide-react';
+import { useAuth } from '../context/Auth/DoctorAuth/useAuth';
 
 const Sidebar = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
+
   const linkClass = ({ isActive }) =>
     `group relative flex items-center justify-center h-12 w-12 rounded-xl transition-all duration-300
      ${
@@ -36,9 +45,12 @@ const Sidebar = () => {
       </nav>
 
       {/* Logout */}
-      <NavLink to="/logout" className={linkClass}>
+      <button
+        onClick={handleLogout}
+        className={`${linkClass({ isActive: false })} flex items-center justify-center`}
+      >
         <LogOut className="h-6 w-6" />
-      </NavLink>
+      </button>
     </aside>
   );
 };
