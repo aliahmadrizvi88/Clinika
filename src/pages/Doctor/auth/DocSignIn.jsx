@@ -34,7 +34,7 @@ const DocSignIn = () => {
     try {
       const res = await api.post('/auth/login', formData);
 
-      login(res.data.doctor, res.data.token);
+      login(res.data.id, res.data.token);
 
       navigate('/doctor-side/dashboard');
     } catch (err) {
@@ -84,6 +84,7 @@ const DocSignIn = () => {
               required
             />
             <button
+              type="button"
               className="rounded-full border border-gray-300 p-3 hover:border-[#3bbb9c] hover:text-[#3bbb9c] cursor-pointer"
               onClick={() => setShowPassword((prev) => !prev)}
             >
