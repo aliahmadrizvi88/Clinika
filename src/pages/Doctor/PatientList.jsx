@@ -13,7 +13,7 @@ const PatientList = () => {
     if (token) {
       fetchPatients();
     }
-  }, [token]);
+  }, []);
 
   const columns = [
     {
@@ -39,17 +39,6 @@ const PatientList = () => {
       render: (row) =>
         row.phone || row.phone_number || row.phoneNumber || 'N/A',
     },
-  ];
-
-  const actions = [
-    {
-      label: 'View',
-      onClick: (row) => {
-        navigate(`/doctor-side/list/${row._id || row.id}`);
-      },
-    },
-    { label: 'Edit', onClick: (row) => console.log('Edit', row) },
-    { label: 'Delete', onClick: (row) => console.log('Delete', row) },
   ];
 
   return (

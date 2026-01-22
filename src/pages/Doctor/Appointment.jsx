@@ -12,7 +12,7 @@ const Appointment = () => {
     if (token && id) {
       fetchAppointment();
     }
-  }, [token, id]);
+  }, [token, id, fetchAppointment]);
 
   const appointmentColumns = [
     {
