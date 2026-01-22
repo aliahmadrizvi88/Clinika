@@ -10,23 +10,14 @@ const DoctorProvider = ({ children }) => {
   const id = typeof doctor === 'string' ? doctor : doctor?.id || doctor?._id;
 
   const [patients, setPatients] = useState([]);
+  const [patientDetails, setPatientDetails] = useState([]);
   const [appointment, setAppointment] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Debug effect
-  useEffect(() => {
-    console.log('=== DOCTOR PROVIDER INIT ===');
-    console.log('Token exists:', !!token);
-    console.log('Doctor:', doctor);
-    console.log('Doctor type:', typeof doctor);
-    console.log('Extracted ID:', id);
-  }, [token, doctor, id]);
-
   // Clear data when doctor changes or logs out
   useEffect(() => {
     if (!token || !doctor) {
-      console.log('=== CLEARING DATA - NO AUTH ===');
       setPatients([]);
       setAppointment([]);
       setError(null);
@@ -35,7 +26,6 @@ const DoctorProvider = ({ children }) => {
 
   const fetchPatients = async () => {
     if (!token) {
-      console.log('❌ fetchPatients - No token available');
       return;
     }
 
@@ -43,18 +33,15 @@ const DoctorProvider = ({ children }) => {
     setError(null);
 
     try {
-      console.log('🔄 Fetching patients...');
       const response = await api.get('/patients/allpatients');
 
       const patientsArray = Array.isArray(response.data)
         ? response.data
         : response.data.data || response.data.patients || [];
 
-      console.log('✅ Patients fetched:', patientsArray.length);
       setPatients(patientsArray);
       return patientsArray;
     } catch (err) {
-      console.error('❌ Error fetching patients:', err);
       setError(err.response?.data?.message || 'Failed to fetch patients');
       setPatients([]);
       return [];
@@ -71,10 +58,13 @@ const DoctorProvider = ({ children }) => {
 
     try {
       const response = await api.get(`/patients/profile/${patientId}`);
+      setPatientDetails(response.data);
       return response.data;
     } catch (err) {
       console.error('Error fetching patient:', patientId, err);
-      return null;
+      setError('Error fetching patient:', patientId, err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -105,11 +95,6 @@ const DoctorProvider = ({ children }) => {
       // Filter out any null/undefined values
       const validAppointments = appointments.filter(
         (appt) => appt && (appt._id || appt.id),
-      );
-
-      console.log(
-        'Valid appointments after filtering:',
-        validAppointments.length,
       );
 
       // Fetch patient details for each appointment
@@ -157,6 +142,7 @@ const DoctorProvider = ({ children }) => {
         fetchPatients,
         appointment,
         fetchAppointment,
+        patientDetails,
         fetchPatientById,
         error,
         loading,

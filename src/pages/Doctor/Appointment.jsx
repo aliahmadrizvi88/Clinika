@@ -10,17 +10,9 @@ const Appointment = () => {
 
   useEffect(() => {
     if (token && id) {
-      console.log('Appointment Component - Fetching for doctor:', id);
       fetchAppointment();
     }
   }, [token, id]);
-
-  useEffect(() => {
-    console.log('Appointment data updated:', appointment);
-    if (appointment.length > 0) {
-      console.log('First appointment with patient:', appointment[0]);
-    }
-  }, [appointment]);
 
   const appointmentColumns = [
     {

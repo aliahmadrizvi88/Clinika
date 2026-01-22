@@ -22,8 +22,6 @@ api.interceptors.request.use(
     // Always get fresh token from cookies
     const token = getCookie('doc_token');
 
-    console.log('API Request - Token:', token ? 'Present' : 'Missing');
-
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     } else {

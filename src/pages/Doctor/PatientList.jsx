@@ -2,10 +2,12 @@ import React, { useEffect } from 'react';
 import UniTable from '../../components/Doctor/UniTable';
 import { useDoctor } from '../../context/Doctor/useDoctor';
 import { useAuth } from '../../context/Auth/DoctorAuth/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 const PatientList = () => {
   const { patients, loading, fetchPatients } = useDoctor();
   const { token } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (token) {
@@ -40,7 +42,12 @@ const PatientList = () => {
   ];
 
   const actions = [
-    { label: 'View', onClick: (row) => console.log('View', row) },
+    {
+      label: 'View',
+      onClick: (row) => {
+        navigate(`/doctor-side/list/${row._id || row.id}`);
+      },
+    },
     { label: 'Edit', onClick: (row) => console.log('Edit', row) },
     { label: 'Delete', onClick: (row) => console.log('Delete', row) },
   ];
@@ -54,7 +61,9 @@ const PatientList = () => {
         columns={columns}
         data={patients}
         loading={loading}
-        actions={actions}
+        onView={(row) => {
+          navigate(`/doctor-side/list/${row._id || row.id}`);
+        }}
       />
     </div>
   );
