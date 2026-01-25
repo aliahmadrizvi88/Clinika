@@ -1,31 +1,32 @@
 import React, { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDoctor } from '../../context/Doctor/useDoctor';
-
-import PageHeader from '../../components/Doctor/PageHeader';
+import { ArrowLeft } from 'lucide-react';
 import PatientProfileSection from '../../components/Doctor/PatientDetails/PatientProfileSection';
 import PatientInfoSection from '../../components/Doctor/PatientDetails/PatientInfoSection';
 import MedicalInfoSection from '../../components/Doctor/PatientDetails/MedicalInfoSection';
+import PatientMedicalRecordsAccordion from '../../components/Doctor/PatientDetails/PatientMedicalRecordsAccordion';
 import PatientActionButtons from '../../components/Doctor/PatientDetails/PatientActionButtons';
 
 const PatientDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
-
   const {
-    patientDetails,
-    fetchPatientById,
-    getMedicalRecordById,
-    loading,
     error,
+    loading,
+    patientDetails,
+    medicalRecords,
+    loadPatientDetails,
+    getMedicalRecordById,
+    deletePatientCascade,
   } = useDoctor();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (id) {
-      fetchPatientById(id);
+      loadPatientDetails(id);
       getMedicalRecordById(id);
     }
-  }, [id]);
+  }, [id, loadPatientDetails, getMedicalRecordById]);
 
   if (loading) {
     return (
@@ -62,24 +63,60 @@ const PatientDetails = () => {
       </div>
     );
   }
+
+  const handleEdit = () => {
+    console.log('Edit patient:', patientDetails);
+    // TODO: Navigate to edit page or open modal
+  };
+
+  const handleDelete = async () => {
+    const confirm = window.confirm(
+      'This will delete patient, appointments, and medical records. Continue?',
+    );
+
+    if (!confirm) return;
+
+    await deletePatientCascade(patientDetails._id);
+    navigate('/doctor-side/list');
+  };
+
+  const handleBook = () => {
+    console.log('Book appointment for:', patientDetails);
+    // TODO: Navigate to booking page or open modal
+  };
+
   return (
     <div className="mx-10 my-5">
-      <PageHeader
-        title="Patient Details"
-        onBack={() => navigate('/doctor-side/list')}
-      />
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={() => navigate('/doctor-side/list')}
+          className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer"
+        >
+          <ArrowLeft size={24} />
+        </button>
+        <h1 className="font-extrabold text-2xl">Patient Details</h1>
+      </div>
 
-      <div className="bg-white rounded-xl shadow-lg p-8">
+      {/* Patient Info Card */}
+      <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
         <PatientProfileSection patient={patientDetails} />
         <PatientInfoSection patient={patientDetails} />
         <MedicalInfoSection patient={patientDetails} />
-        <PatientActionButtons
-          onBack={() => navigate('/doctor-side/list')}
-          onEdit={() => console.log('Edit', patientDetails)}
-          onDelete={() => console.log('Delete', patientDetails)}
-          onBook={() => console.log('Book', patientDetails)}
-        />
       </div>
+
+      {/* Medical Records Accordion */}
+      <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+        <PatientMedicalRecordsAccordion records={medicalRecords} />
+      </div>
+
+      {/* Action Buttons */}
+      <PatientActionButtons
+        onBack={() => navigate('/doctor-side/list')}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        onBook={handleBook}
+      />
     </div>
   );
 };

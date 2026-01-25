@@ -1,4 +1,7 @@
 const MedicalInfoSection = ({ patient }) => {
+  if (patient.loading) {
+    return <div>Loading...</div>;
+  }
   return (
     <div className="mb-8">
       <h3 className="text-xl font-semibold text-gray-800 mb-4">
