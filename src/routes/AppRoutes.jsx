@@ -12,6 +12,7 @@ import PatientList from '../pages/Doctor/PatientList';
 import DoctorProfile from '../pages/Doctor/DoctorProfile';
 import Appointment from '../pages/Doctor/Appointment';
 import PatientDetails from '../pages/Doctor/PatientDetails';
+import AppointmentDetails from '../pages/Doctor/AppointmentDetails';
 
 //Auth Routes
 import DocSignIn from '../pages/Doctor/auth/DocSignIn';
@@ -43,6 +44,7 @@ const AppRoutes = () => {
           <Route path="list/:id" element={<PatientDetails />} />
           <Route path="profile" element={<DoctorProfile />} />
           <Route path="appointment" element={<Appointment />} />
+          <Route path="appointment/:id" element={<AppointmentDetails />} />
         </Route>
       </Route>
 

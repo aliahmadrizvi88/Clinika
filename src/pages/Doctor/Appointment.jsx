@@ -1,13 +1,15 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import UniTable from '../../components/Doctor/UniTable';
 import { useDoctor } from '../../context/Doctor/useDoctor';
 import { useAuth } from '../../context/Auth/DoctorAuth/useAuth';
-import { formatDate, formatTime } from '../../util/dateTime';
+import { formatDate, formatDateTime } from '../../util/dateTime';
 
 const Appointment = () => {
   const { appointment = [], fetchAppointment, loading, error } = useDoctor();
 
   const { token, doctor } = useAuth();
+  const navigate = useNavigate();
   const id = typeof doctor === 'string' ? doctor : doctor?.id || doctor?._id;
 
   useEffect(() => {
@@ -44,13 +46,16 @@ const Appointment = () => {
           {
             key: 'appointment_time',
             label: 'Time',
-            render: (record) => formatTime(record.appointment_time),
+            render: (record) => formatDateTime(record.appointment_time),
           },
           { key: 'status', label: 'Status' },
           { key: 'reason_for_visit', label: 'Reason' },
         ]}
         data={appointment}
         loading={loading}
+        onView={(row) => {
+          navigate(`/doctor-side/appointment/${row._id || row.id}`);
+        }}
       />
     </div>
   );

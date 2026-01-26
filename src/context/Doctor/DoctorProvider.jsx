@@ -14,6 +14,7 @@ const DoctorProvider = ({ children }) => {
   const [patientDetails, setPatientDetails] = useState(null);
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [appointment, setAppointment] = useState([]);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -81,6 +82,67 @@ const DoctorProvider = ({ children }) => {
       setLoading(false);
     }
   }, [token, STORAGE_KEYS]);
+
+  // Delete Patients
+  const deletePatientCascade = useCallback(
+    async (patientId) => {
+      if (!token || !patientId || !STORAGE_KEYS) return;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        /* 1️⃣ Fetch related records */
+        const recordsRes = await api.get(
+          `/medical_records/patient/${patientId}`,
+        );
+        const records = Array.isArray(recordsRes.data) ? recordsRes.data : [];
+
+        const bookingsRes = await api.get('/bookings/doctor/' + doctorId);
+        const bookings = Array.isArray(bookingsRes.data)
+          ? bookingsRes.data
+          : [];
+
+        const patientBookings = bookings.filter(
+          (b) => b.patient_id?._id === patientId,
+        );
+
+        /* 2️⃣ Delete medical records */
+        await Promise.all(
+          records.map((r) => api.delete(`/medical_records/delete/${r._id}`)),
+        );
+
+        /* 3️⃣ Delete appointments */
+        await Promise.all(
+          patientBookings.map((b) => api.delete(`/bookings/delete/${b._id}`)),
+        );
+
+        /* 4️⃣ Delete patient */
+        await api.delete(`/patients/delete/${patientId}`);
+
+        /* 5️⃣ Clear state */
+        setPatientDetails(null);
+        setMedicalRecords([]);
+
+        /* 6️⃣ Refetch patients */
+        const refreshed = await api.get('/patients/allpatients');
+        setPatients(refreshed.data || []);
+
+        sessionStorage.setItem(
+          STORAGE_KEYS.PATIENTS,
+          JSON.stringify(refreshed.data || []),
+        );
+
+        sessionStorage.removeItem(STORAGE_KEYS.PATIENT_DETAILS);
+        sessionStorage.removeItem(STORAGE_KEYS.MEDICAL_RECORDS);
+      } catch (err) {
+        setError('Failed to delete patient completely', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, doctorId, STORAGE_KEYS],
+  );
 
   /* ===================== LOAD PATIENT DETAILS ===================== */
   const loadPatientDetails = useCallback(
@@ -163,18 +225,102 @@ const DoctorProvider = ({ children }) => {
     }
   }, [token, doctorId, STORAGE_KEYS]);
 
+  const loadAppointmentDetails = useCallback(
+    async (appointmentId) => {
+      if (!token || !appointmentId) return null;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        // 1️⃣ Try from existing appointments first
+        let appt = appointment.find(
+          (a) => a._id === appointmentId || a.id === appointmentId,
+        );
+
+        // 2️⃣ If not found, refetch all appointments
+        if (!appt) {
+          const res = await api.get(`/bookings/doctor/${doctorId}`);
+          const list = Array.isArray(res.data) ? res.data : [];
+          appt = list.find(
+            (a) => a._id === appointmentId || a.id === appointmentId,
+          );
+        }
+
+        if (!appt) {
+          setError('Appointment not found');
+          return null;
+        }
+
+        // 3️⃣ Fetch patient details if patient_id is a string
+        if (appt.patient_id && typeof appt.patient_id === 'string') {
+          try {
+            const patientRes = await api.get(
+              `/patients/profile/${appt.patient_id}`,
+            );
+            appt = {
+              ...appt,
+              patient_details: patientRes.data,
+            };
+          } catch (err) {
+            console.error('Failed to fetch patient for appointment:', err);
+          }
+        }
+
+        // 4️⃣ Fetch medical records for this appointment
+        if (appt.patient_id) {
+          const patientId =
+            typeof appt.patient_id === 'string'
+              ? appt.patient_id
+              : appt.patient_id._id;
+
+          try {
+            const recordsRes = await api.get(
+              `/medical_records/patient/${patientId}`,
+            );
+            const records = Array.isArray(recordsRes.data)
+              ? recordsRes.data
+              : [];
+            appt = {
+              ...appt,
+              medical_records: records,
+            };
+          } catch (err) {
+            console.error('Failed to fetch medical records:', err);
+          }
+        }
+
+        setSelectedAppointment(appt);
+        return appt;
+      } catch (err) {
+        setError('Failed to load appointment details', err);
+        setSelectedAppointment(null);
+        return null;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, doctorId, appointment],
+  );
+
   /* ===================== PROVIDER ===================== */
   return (
     <DoctorContext.Provider
       value={{
         patients,
         fetchPatients,
-        appointment,
-        fetchAppointment,
         patientDetails,
         loadPatientDetails,
+        deletePatientCascade,
+
+        appointment,
+        fetchAppointment,
+        selectedAppointment,
+        loadAppointmentDetails,
+
         medicalRecords,
         getMedicalRecordById,
+
         loading,
         error,
       }}

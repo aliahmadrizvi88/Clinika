@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDoctor } from '../../context/Doctor/useDoctor';
 import { ArrowLeft } from 'lucide-react';
@@ -7,6 +7,7 @@ import PatientInfoSection from '../../components/Doctor/PatientDetails/PatientIn
 import MedicalInfoSection from '../../components/Doctor/PatientDetails/MedicalInfoSection';
 import PatientMedicalRecordsAccordion from '../../components/Doctor/PatientDetails/PatientMedicalRecordsAccordion';
 import PatientActionButtons from '../../components/Doctor/PatientDetails/PatientActionButtons';
+import UniversalDialog from '../../components/UniversalDialog';
 
 const PatientDetails = () => {
   const { id } = useParams();
@@ -20,6 +21,7 @@ const PatientDetails = () => {
     deletePatientCascade,
   } = useDoctor();
   const navigate = useNavigate();
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -69,15 +71,9 @@ const PatientDetails = () => {
     // TODO: Navigate to edit page or open modal
   };
 
-  const handleDelete = async () => {
-    const confirm = window.confirm(
-      'This will delete patient, appointments, and medical records. Continue?',
-    );
-
-    if (!confirm) return;
-
+  const handleConfirmDelete = async () => {
     await deletePatientCascade(patientDetails._id);
-    navigate('/doctor-side/list');
+    navigate('/doctor-side/list', { replace: true });
   };
 
   const handleBook = () => {
@@ -114,8 +110,20 @@ const PatientDetails = () => {
       <PatientActionButtons
         onBack={() => navigate('/doctor-side/list')}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={() => setOpenDeleteDialog(true)}
         onBook={handleBook}
+      />
+
+      <UniversalDialog
+        open={openDeleteDialog}
+        onClose={() => setOpenDeleteDialog(false)}
+        type="confirmation"
+        title="Delete Patient"
+        message="This will permanently delete the patient, all appointments, and all medical records. This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onCancel={() => setOpenDeleteDialog(false)}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );
