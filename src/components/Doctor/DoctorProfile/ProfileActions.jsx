@@ -4,7 +4,7 @@ const ProfileActions = ({ doctor }) => {
   const navigate = useNavigate();
 
   const handleEdit = () => {
-    navigate('/doctor-side/profile/edit');
+    navigate('edit is clicked');
   };
 
   const handleDeactivate = () => {

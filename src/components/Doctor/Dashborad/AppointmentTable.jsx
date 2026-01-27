@@ -1,5 +1,7 @@
 import React from 'react';
 import { Check, X, Clock, Ban } from 'lucide-react';
+import { useDoctor } from '../../../context/Doctor/useDoctor';
+import { formatDate, formatTime } from '../../../util/dateTime';
 
 const STATUS_CONFIG = {
   scheduled: {
@@ -24,66 +26,88 @@ const STATUS_CONFIG = {
   },
 };
 
-const appointments = [
-  {
-    name: 'David Laid',
-    location: 'New York',
-    date: '25 Jun 2024',
-    time: '01:00 PM',
-    status: 'scheduled',
-  },
-  {
-    name: 'Shopie Rose',
-    location: 'Downtown',
-    date: '24 Jun 2024',
-    time: '05:00 PM',
-    status: 'completed',
-  },
-];
-
 const AppointmentsTable = () => {
+  const { appointment = [], loading } = useDoctor();
+
   return (
     <div className="bg-white rounded-2xl p-6 col-span-2">
-      <h2 className="font-semibold mb-4">My Appointments</h2>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="font-semibold">My Appointments</h2>
+        <span className="text-sm text-gray-400">
+          {appointment.length} total
+        </span>
+      </div>
 
-      <table className="w-full text-sm">
-        <thead className="text-gray-400">
-          <tr>
-            <th>Name</th>
-            <th>Location</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Status</th>
-          </tr>
-        </thead>
+      {/* Loading */}
+      {loading && (
+        <div className="space-y-3 animate-pulse">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-6 bg-gray-200 rounded" />
+          ))}
+        </div>
+      )}
 
-        <tbody>
-          {appointments.map((a, i) => {
-            const status = STATUS_CONFIG[a.status];
-            const Icon = status.icon;
+      {/* Empty */}
+      {!loading && appointment.length === 0 && (
+        <p className="text-gray-400 text-sm text-center py-10">
+          No appointments available
+        </p>
+      )}
 
-            return (
-              <tr
-                key={i}
-                className="text-center hover:bg-[#f6f8fc] hover:scale-[1.01] transition duration-150"
-              >
-                <td className="py-3">{a.name}</td>
-                <td>{a.location}</td>
-                <td>{a.date}</td>
-                <td>{a.time}</td>
-                <td>
-                  <span
-                    className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${status.className}`}
-                  >
-                    <Icon size={14} />
-                    {status.label}
-                  </span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+      {/* Table */}
+      {!loading && appointment.length > 0 && (
+        <table className="w-full text-sm">
+          <thead className="text-gray-400">
+            <tr>
+              <th className="text-left py-2">Patient</th>
+              <th>Phone</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {appointment.slice(0, 5).map((a) => {
+              const statusKey = a.status?.toLowerCase() || 'scheduled';
+              const status =
+                STATUS_CONFIG[statusKey] || STATUS_CONFIG.scheduled;
+              const Icon = status.icon;
+
+              return (
+                <tr
+                  key={a._id}
+                  className="text-center hover:bg-[#f6f8fc] transition"
+                >
+                  <td className="py-3 text-left font-medium">
+                    {a.patient_details
+                      ? `${a.patient_details.first_name} ${a.patient_details.last_name}`
+                      : 'Unknown'}
+                  </td>
+
+                  <td>
+                    {a.patient_details?.phone ||
+                      a.patient_details?.phone_number ||
+                      '—'}
+                  </td>
+
+                  <td>{formatDate(a.appointment_date)}</td>
+                  <td>{formatTime(a.appointment_time)}</td>
+
+                  <td>
+                    <span
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium ${status.className}`}
+                    >
+                      <Icon size={14} />
+                      {status.label}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
