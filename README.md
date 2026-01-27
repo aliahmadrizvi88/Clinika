@@ -330,14 +330,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact
 
-**Frontend Developer:** Your Name  
-**Email:** your.email@example.com  
-**GitHub:** [@yourusername](https://github.com/yourusername)
+**Frontend Developer:** Syed Ali Ahmad Rizvi
+**Email:** aliahmadrizvi88@gmail.com  
+**GitHub:** [@aliahmadrizvi88](https://github.com/aliahmadrizvi88)
 
 **Backend Developer:** Amjad Khan Niazi  
 **GitHub:** [@amjadkhanniazi](https://github.com/amjadkhanniazi)
 
-**Project Link:** [https://github.com/yourusername/doctor-clinic-frontend](https://github.com/yourusername/doctor-clinic-frontend)
+**Project Link:** [https://github.com/amjadkhanniazi/doctor-clinic-frontend](https://github.com/amjadkhanniazi/doc_clinic_backend)
 
 ---
 
