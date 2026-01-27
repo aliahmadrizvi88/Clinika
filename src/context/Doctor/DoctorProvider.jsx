@@ -15,6 +15,7 @@ const DoctorProvider = ({ children }) => {
   const [medicalRecords, setMedicalRecords] = useState([]);
   const [appointment, setAppointment] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [doctorProfile, setDoctorProfile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -303,6 +304,22 @@ const DoctorProvider = ({ children }) => {
     [token, doctorId, appointment],
   );
 
+  const fetchDoctorProfile = useCallback(async () => {
+    if (!token || !doctorId) return;
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await api.get(`/doctors/profile/${doctorId}`);
+      setDoctorProfile(res.data || null);
+    } catch (err) {
+      setError('Failed to load doctor profile', err);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, doctorId]);
+
   /* ===================== PROVIDER ===================== */
   return (
     <DoctorContext.Provider
@@ -320,6 +337,9 @@ const DoctorProvider = ({ children }) => {
 
         medicalRecords,
         getMedicalRecordById,
+
+        doctorProfile,
+        fetchDoctorProfile,
 
         loading,
         error,
