@@ -5,12 +5,14 @@ import CoreValue from '../../components/Patients/HomePage/CoreValue';
 import Doctor from '../../components/Patients/HomePage/Doctor';
 import Facilities from '../../components/Patients/HomePage/Facilities';
 
+import banner from '../../assets/Banner.png';
+
 const Home = () => {
   return (
     <div className="">
       <section className="relative w-full h-[50vh] md:h-[60vh] lg:h-[60vh] overflow-hidden">
         <img
-          src="/src/assets/Banner.png"
+          src={banner}
           alt="Hospital Interior"
           className="absolute inset-0 w-full h-full object-cover object-center"
         />

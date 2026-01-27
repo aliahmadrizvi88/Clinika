@@ -13,7 +13,7 @@ const Nav = () => {
   return (
     <div className="flex px-10 py-5 justify-between items-center bg-linear-to-r from-[#2a89b9] via-[#37a2ad] to-[#3bbb9c]">
       <img
-        src="/public/favicon.svg"
+        src="/favicon.svg"
         alt=""
         className="h-20 w-max bg-white rounded-full"
       />
