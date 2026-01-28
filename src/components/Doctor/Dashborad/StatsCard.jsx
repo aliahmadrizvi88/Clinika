@@ -1,54 +1,73 @@
 import React from 'react';
 import { Users, CalendarCheck, Clock, CheckCircle } from 'lucide-react';
 
-const StatsCard = ({ stats }) => {
+const StatsCard = ({ stats = {} }) => {
   const cards = [
     {
       label: 'Total Patients',
-      value: stats.totalPatients,
+      value: stats.totalPatients ?? 0,
       icon: Users,
-      color: '#3bbb9c',
+      gradient: 'from-emerald-50 to-emerald-100',
+      border: 'border-emerald-200',
+      text: 'text-emerald-700',
+      iconBg: 'bg-emerald-500',
     },
     {
       label: 'Appointments',
-      value: stats.totalAppointments,
+      value: stats.totalAppointments ?? 0,
       icon: CalendarCheck,
-      color: '#2a89b9',
+      gradient: 'from-blue-50 to-blue-100',
+      border: 'border-blue-200',
+      text: 'text-blue-700',
+      iconBg: 'bg-blue-500',
     },
     {
       label: 'Pending',
-      value: stats.pendingAppointments,
+      value: stats.pendingAppointments ?? 0,
       icon: Clock,
-      color: '#f59e0b',
+      gradient: 'from-amber-50 to-amber-100',
+      border: 'border-amber-200',
+      text: 'text-amber-700',
+      iconBg: 'bg-amber-500',
     },
     {
       label: 'Completed',
-      value: stats.completedAppointments,
+      value: stats.completedAppointments ?? 0,
       icon: CheckCircle,
-      color: '#10b981',
+      gradient: 'from-teal-50 to-teal-100',
+      border: 'border-teal-200',
+      text: 'text-teal-700',
+      iconBg: 'bg-teal-500',
     },
   ];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {cards.map(({ label, value, icon: Icon, color }) => (
-        <div
-          key={label}
-          className="bg-white rounded-2xl p-5 flex justify-between items-center"
-        >
-          <div>
-            <p className="text-gray-500 text-sm">{label}</p>
-            <h2 className="text-2xl font-semibold">{value ?? 0}</h2>
-          </div>
-
+      {cards.map(
+        ({ label, value, icon: Icon, gradient, border, text, iconBg }) => (
           <div
-            className="h-12 w-12 rounded-xl flex items-center justify-center text-white"
-            style={{ backgroundColor: color }}
+            key={label}
+            className={`
+              bg-linear-to-br ${gradient}
+              p-6 rounded-xl border ${border}
+              transition hover:shadow-md
+            `}
           >
-            <Icon size={20} />
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-sm font-medium ${text}`}>{label}</p>
+                <p className="text-3xl font-bold text-gray-900 mt-1">{value}</p>
+              </div>
+
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center text-white ${iconBg}`}
+              >
+                <Icon size={22} />
+              </div>
+            </div>
           </div>
-        </div>
-      ))}
+        ),
+      )}
     </div>
   );
 };

@@ -8,6 +8,7 @@ import MedicalInfoSection from '../../components/Doctor/PatientDetails/MedicalIn
 import PatientMedicalRecordsAccordion from '../../components/Doctor/PatientDetails/PatientMedicalRecordsAccordion';
 import PatientActionButtons from '../../components/Doctor/PatientDetails/PatientActionButtons';
 import UniversalDialog from '../../components/UniversalDialog';
+import AppointmentBookingForm from '../../components/Doctor/AppointmentBookingForm';
 
 const PatientDetails = () => {
   const { id } = useParams();
@@ -19,9 +20,15 @@ const PatientDetails = () => {
     loadPatientDetails,
     getMedicalRecordById,
     deletePatientCascade,
+    bookAppointment,
   } = useDoctor();
   const navigate = useNavigate();
+
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [openBookingDialog, setOpenBookingDialog] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingError, setBookingError] = useState(null);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -76,9 +83,38 @@ const PatientDetails = () => {
     navigate('/doctor-side/list', { replace: true });
   };
 
-  const handleBook = () => {
-    console.log('Book appointment for:', patientDetails);
-    // TODO: Navigate to booking page or open modal
+  const handleBookAppointment = async (appointmentData) => {
+    setBookingLoading(true);
+    setBookingError(null);
+
+    try {
+      const payload = {
+        ...appointmentData,
+        patient_id: patientDetails._id || patientDetails.id,
+      };
+
+      console.log('Submitting appointment:', payload);
+
+      await bookAppointment(payload);
+
+      setBookingSuccess(true);
+
+      // Close dialog after 2 seconds
+      setTimeout(() => {
+        setOpenBookingDialog(false);
+        setBookingSuccess(false);
+        // Optionally redirect to appointments page
+        // navigate('/doctor-side/appointment');
+      }, 2000);
+    } catch (err) {
+      setBookingError(
+        err.response?.data?.message ||
+          err.response?.data?.error ||
+          'Failed to book appointment. Please try again.',
+      );
+    } finally {
+      setBookingLoading(false);
+    }
   };
 
   return (
@@ -111,9 +147,10 @@ const PatientDetails = () => {
         onBack={() => navigate('/doctor-side/list')}
         onEdit={handleEdit}
         onDelete={() => setOpenDeleteDialog(true)}
-        onBook={handleBook}
+        onBook={() => setOpenBookingDialog(true)}
       />
 
+      {/* Delete Confirmation Dialog */}
       <UniversalDialog
         open={openDeleteDialog}
         onClose={() => setOpenDeleteDialog(false)}
@@ -125,6 +162,68 @@ const PatientDetails = () => {
         onCancel={() => setOpenDeleteDialog(false)}
         onConfirm={handleConfirmDelete}
       />
+
+      {/* Book Appointment Dialog */}
+      <UniversalDialog
+        open={openBookingDialog}
+        onClose={() => {
+          if (!bookingLoading) {
+            setOpenBookingDialog(false);
+            setBookingError(null);
+          }
+        }}
+        type="form"
+        title="Book New Appointment"
+        size="lg"
+      >
+        {bookingSuccess ? (
+          <div className="text-center py-8">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-8 h-8 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-green-600 mb-2">
+              Appointment Booked Successfully!
+            </h3>
+            <p className="text-gray-600">The appointment has been scheduled.</p>
+          </div>
+        ) : (
+          <>
+            {bookingError && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                {bookingError}
+              </div>
+            )}
+
+            {bookingLoading ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+                <p className="text-gray-600 mt-4">Booking appointment...</p>
+              </div>
+            ) : (
+              <AppointmentBookingForm
+                patient={patientDetails}
+                onSubmit={handleBookAppointment}
+                onCancel={() => {
+                  setOpenBookingDialog(false);
+                  setBookingError(null);
+                }}
+              />
+            )}
+          </>
+        )}
+      </UniversalDialog>
     </div>
   );
 };

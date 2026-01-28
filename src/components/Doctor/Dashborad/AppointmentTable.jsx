@@ -1,7 +1,7 @@
 import React from 'react';
 import { Check, X, Clock, Ban } from 'lucide-react';
 import { useDoctor } from '../../../context/Doctor/useDoctor';
-import { formatDate, formatTime } from '../../../util/dateTime';
+import { formatDate } from '../../../util/dateTime';
 
 const STATUS_CONFIG = {
   scheduled: {
@@ -62,7 +62,6 @@ const AppointmentsTable = () => {
               <th className="text-left py-2">Patient</th>
               <th>Phone</th>
               <th>Date</th>
-              <th>Time</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -92,7 +91,6 @@ const AppointmentsTable = () => {
                   </td>
 
                   <td>{formatDate(a.appointment_date)}</td>
-                  <td>{formatTime(a.appointment_time)}</td>
 
                   <td>
                     <span

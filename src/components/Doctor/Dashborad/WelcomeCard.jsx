@@ -9,16 +9,18 @@ const getGreeting = () => {
 
 const WelcomeCard = () => {
   return (
-    <div className="bg-white rounded-2xl p-6 flex justify-between items-center">
+    <div className="bg-linear-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-6 flex justify-between items-center">
       <div>
-        <h1 className="text-2xl font-semibold">{getGreeting()} Doctor</h1>
-        <p className="text-gray-500 mt-1">Have a productive day at work</p>
+        <h1 className="text-2xl text-blue-600 font-semibold">
+          {getGreeting()} Doctor
+        </h1>
+        <p className="text-blue-500 mt-1">Have a productive day at work</p>
       </div>
 
       <img
         src="/src/assets/Image/Illustration/Doc.png"
         alt="Doctor"
-        className="h-40 hidden md:block"
+        className="h-50 hidden md:block rounded-full"
       />
     </div>
   );

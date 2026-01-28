@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus } from 'lucide-react';
+import { Search, UserPlus } from 'lucide-react';
 import api from '../../../api/api';
 import AddPatientModal from '../AddPatientModel';
 
@@ -26,12 +26,11 @@ const TopBar = () => {
       </div>
 
       <button
-        onClick={() => {
-          setIsModalOpen(true);
-        }}
-        className="font-bold bg-[#2a89b9] text-white px-4 py-2 rounded-xl flex items-center gap-3 cursor-pointer"
+        onClick={() => setIsModalOpen(true)}
+        className="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition shadow-lg hover:shadow-xl"
       >
-        <Plus size={18} /> Add Patient
+        <UserPlus size={20} />
+        Add New Patient
       </button>
       <AddPatientModal
         isOpen={isModalOpen}
