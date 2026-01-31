@@ -1,7 +1,6 @@
 const ProfileCard = ({ doctor }) => {
   return (
     <>
-      <h1 className="font-extrabold text-2xl mb-5">Your Profile</h1>
       <div className="bg-white rounded-2xl shadow p-6">
         <div className="flex items-center justify-start gap-6 mb-8 pb-8 ">
           <div className="w-20 h-20 bg-linear-to-br uppercase from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">

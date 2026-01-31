@@ -98,6 +98,32 @@ const DoctorProvider = ({ children }) => {
     }
   }, [token, STORAGE_KEYS]);
 
+  /* ===================== ADD PATIENT ===================== */
+  const addPatient = useCallback(
+    async (patientData) => {
+      if (!token) return null;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await api.post('/patients/addpatient', patientData);
+
+        console.log('✅ Patient added:', res.data);
+
+        await fetchPatients();
+        return res.data;
+      } catch (err) {
+        console.error('❌ Add patient error:', err.response?.data);
+        setError(err.response?.data?.message || 'Failed to add patient');
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, fetchPatients],
+  );
+
   /* ===================== LOAD PATIENT DETAILS ===================== */
   const loadPatientDetails = useCallback(
     async (patientId) => {
@@ -198,6 +224,51 @@ const DoctorProvider = ({ children }) => {
     }
   }, [token, doctorId, STORAGE_KEYS]);
 
+  /* ===================== BOOK APPOINTMENT ===================== */
+  const bookAppointment = useCallback(
+    async (appointmentData) => {
+      if (!token || !doctorId) return null;
+
+      setLoading(true);
+      setError(null);
+
+      try {
+        // Create ISO datetime string for appointment_time
+        const appointmentDateTime = new Date(
+          `${appointmentData.appointment_date}T${appointmentData.appointment_time}:00.000Z`,
+        ).toISOString();
+
+        const payload = {
+          patient_id: appointmentData.patient_id,
+          doctor_id: doctorId,
+          appointment_date: appointmentData.appointment_date,
+          appointment_time: appointmentDateTime,
+          duration_minutes: Number(appointmentData.duration_minutes),
+          status: 'Scheduled', // Try capital S first
+          reason_for_visit: appointmentData.reason_for_visit || '',
+          notes: appointmentData.notes || '',
+        };
+
+        console.log('📤 Booking appointment:', payload);
+
+        const res = await api.post('/bookings/new', payload);
+
+        console.log('✅ Appointment booked:', res.data);
+
+        await fetchAppointment();
+
+        return res.data;
+      } catch (err) {
+        console.error('❌ Booking error:', err.response?.data || err.message);
+        setError(err.response?.data?.message || 'Failed to book appointment');
+        throw err;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [token, doctorId, fetchAppointment],
+  );
+
   /* ===================== LOAD APPOINTMENT DETAILS ===================== */
   const loadAppointmentDetails = useCallback(
     async (appointmentId) => {
@@ -262,60 +333,6 @@ const DoctorProvider = ({ children }) => {
     }
   }, [token, doctorId]);
 
-  /* ===================== BOOK APPOINTMENT ===================== */
-  const bookAppointment = async (appointmentData) => {
-    try {
-      const payload = {
-        patient_id: appointmentData.patient_id,
-        doctor_id: doctorId,
-
-        // ✅ STRING ONLY
-        appointment_date: appointmentData.appointment_date, // "2026-01-20"
-        appointment_time: appointmentData.appointment_time, // "10:30"
-
-        duration_minutes: Number(appointmentData.duration_minutes),
-
-        // ✅ VALID ENUM VALUE
-        status: 'pending',
-
-        reason_for_visit: appointmentData.reason_for_visit || '',
-        notes: appointmentData.notes || '',
-      };
-
-      console.log('📤 FINAL payload', payload);
-
-      const res = await api.post('/bookings/new', payload);
-      await fetchAppointment();
-
-      return res.data;
-    } catch (err) {
-      console.error('❌ Booking error:', err.response?.data || err.message);
-      throw err;
-    }
-  };
-
-  /* ===================== ADD PATIENT ===================== */
-  const addPatient = useCallback(
-    async (patientData) => {
-      if (!token) return null;
-
-      setLoading(true);
-      setError(null);
-
-      try {
-        const res = await api.post('/patients/addpatient', patientData);
-        await fetchPatients();
-        return res.data;
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to add patient');
-        throw err;
-      } finally {
-        setLoading(false);
-      }
-    },
-    [token, fetchPatients],
-  );
-
   /* ===================== PROVIDER ===================== */
   return (
     <DoctorContext.Provider
@@ -329,9 +346,9 @@ const DoctorProvider = ({ children }) => {
 
         appointment,
         fetchAppointment,
+        bookAppointment,
         selectedAppointment,
         loadAppointmentDetails,
-        bookAppointment,
 
         medicalRecords,
         getMedicalRecordById,
