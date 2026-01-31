@@ -39,9 +39,10 @@ const PatientDetails = () => {
 
   if (loading) {
     return (
-      <div className="mx-10 my-5">
-        <div className="bg-white rounded-xl p-6 text-center">
-          <p className="text-gray-500">Loading patient details...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading patient details...</p>
         </div>
       </div>
     );
@@ -50,12 +51,13 @@ const PatientDetails = () => {
   if (error) {
     return (
       <div className="mx-10 my-5">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
+        <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-xl">
+          <p className="font-semibold">Error</p>
+          <p className="text-sm mt-1">{error}</p>
         </div>
         <button
           onClick={() => navigate('/doctor-side/list')}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
         >
           Back to Patient List
         </button>
@@ -66,7 +68,7 @@ const PatientDetails = () => {
   if (!patientDetails || !patientDetails.first_name) {
     return (
       <div className="mx-10 my-5">
-        <div className="bg-white rounded-xl p-6 text-center">
+        <div className="bg-white rounded-xl p-12 text-center shadow-sm">
           <p className="text-gray-500">No patient data available</p>
         </div>
       </div>
@@ -93,18 +95,12 @@ const PatientDetails = () => {
         patient_id: patientDetails._id || patientDetails.id,
       };
 
-      console.log('Submitting appointment:', payload);
-
       await bookAppointment(payload);
-
       setBookingSuccess(true);
 
-      // Close dialog after 2 seconds
       setTimeout(() => {
         setOpenBookingDialog(false);
         setBookingSuccess(false);
-        // Optionally redirect to appointments page
-        // navigate('/doctor-side/appointment');
       }, 2000);
     } catch (err) {
       setBookingError(
@@ -118,37 +114,55 @@ const PatientDetails = () => {
   };
 
   return (
-    <div className="mx-10 my-5">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={() => navigate('/doctor-side/list')}
-          className="p-2 hover:bg-gray-100 rounded-full transition cursor-pointer"
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <h1 className="font-extrabold text-2xl">Patient Details</h1>
-      </div>
+    <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 pb-10">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Header */}
+        <div className="flex items-center gap-4 mb-8">
+          <button
+            onClick={() => navigate('/doctor-side/list')}
+            className="p-2 hover:bg-white rounded-full transition shadow-sm"
+          >
+            <ArrowLeft size={24} className="text-gray-700" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-extrabold text-gray-800">
+              Patient Details
+            </h1>
+            <p className="text-gray-500 text-sm mt-1">
+              View and manage patient information
+            </p>
+          </div>
+        </div>
 
-      {/* Patient Info Card */}
-      <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
-        <PatientProfileSection patient={patientDetails} />
-        <PatientInfoSection patient={patientDetails} />
-        <MedicalInfoSection patient={patientDetails} />
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Left Column - Main Info */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Patient Profile Card */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+              <PatientProfileSection patient={patientDetails} />
+              <PatientInfoSection patient={patientDetails} />
+              <MedicalInfoSection patient={patientDetails} />
+            </div>
 
-      {/* Medical Records Accordion */}
-      <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
-        <PatientMedicalRecordsAccordion records={medicalRecords} />
-      </div>
+            {/* Medical Records */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+              <PatientMedicalRecordsAccordion records={medicalRecords} />
+            </div>
+          </div>
 
-      {/* Action Buttons */}
-      <PatientActionButtons
-        onBack={() => navigate('/doctor-side/list')}
-        onEdit={handleEdit}
-        onDelete={() => setOpenDeleteDialog(true)}
-        onBook={() => setOpenBookingDialog(true)}
-      />
+          {/* Right Column - Actions */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-6">
+              <PatientActionButtons
+                onBack={() => navigate('/doctor-side/list')}
+                onEdit={handleEdit}
+                onDelete={() => setOpenDeleteDialog(true)}
+                onBook={() => setOpenBookingDialog(true)}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <UniversalDialog
