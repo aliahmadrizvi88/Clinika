@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDoctor } from '../../context/Doctor/useDoctor';
 import UniversalDialog from '../../components/UniversalDialog';
+import EditAppointmentForm from '../../components/Doctor/EditAppointmentForm';
 
 import AppointmentHeader from '../../components/Doctor/AppointmentDetails/AppointmentHeader';
 import AppointmentInfoCard from '../../components/Doctor/AppointmentDetails/AppointmentInfoCard';
@@ -13,11 +14,25 @@ const AppointmentDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { selectedAppointment, loadAppointmentDetails, loading, error } =
-    useDoctor();
+  const {
+    selectedAppointment,
+    loadAppointmentDetails,
+    updateAppointment,
+    cancelAppointment,
+    completeAppointment,
+    deleteAppointment,
+    loading,
+    error,
+  } = useDoctor();
 
   const [showCancelDialog, setShowCancelDialog] = useState(false);
-  const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -25,17 +40,59 @@ const AppointmentDetails = () => {
     }
   }, [id, loadAppointmentDetails]);
 
-  const handleCancelAppointment = async () => {
-    // TODO: Implement cancel appointment API call
-    console.log('Cancelling appointment:', id);
-    setShowCancelDialog(false);
-    // navigate('/doctor-side/appointment');
+  /* ==================== HANDLERS ==================== */
+  const handleEditAppointment = async (formData) => {
+    setEditLoading(true);
+    setEditError(null);
+
+    try {
+      await updateAppointment(selectedAppointment._id, formData);
+      setOpenEditDialog(false);
+      await loadAppointmentDetails(id);
+    } catch (err) {
+      setEditError(
+        err.response?.data?.message || 'Failed to update appointment',
+      );
+    } finally {
+      setEditLoading(false);
+    }
   };
 
-  const handleAddMedicalRecord = (recordData) => {
-    // TODO: Implement add medical record API call
-    console.log('Adding medical record:', recordData);
-    setShowMedicalRecordModal(false);
+  const handleCancelAppointment = async () => {
+    setActionLoading(true);
+    try {
+      await cancelAppointment(selectedAppointment._id);
+      setShowCancelDialog(false);
+      await loadAppointmentDetails(id);
+    } catch (err) {
+      console.error('Cancel failed:', err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleCompleteAppointment = async () => {
+    setActionLoading(true);
+    try {
+      await completeAppointment(selectedAppointment._id);
+      setShowCompleteDialog(false);
+      await loadAppointmentDetails(id);
+    } catch (err) {
+      console.error('Complete failed:', err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteAppointment = async () => {
+    setActionLoading(true);
+    try {
+      await deleteAppointment(selectedAppointment._id);
+      navigate('/doctor-side/appointment', { replace: true });
+    } catch (err) {
+      console.error('Delete failed:', err);
+      setActionLoading(false);
+    }
   };
 
   if (loading) {
@@ -100,31 +157,53 @@ const AppointmentDetails = () => {
           <div className="lg:col-span-2 space-y-6">
             <AppointmentInfoCard appointment={selectedAppointment} />
             {patient && <AppointmentPatientCard patient={patient} />}
-            <AppointmentMedicalRecords
-              records={medicalRecords}
-              onAddRecord={() => setShowMedicalRecordModal(true)}
-            />
+            <AppointmentMedicalRecords records={medicalRecords} />
           </div>
 
           {/* Right Column - Actions */}
           <div className="lg:col-span-1">
             <AppointmentActions
               appointment={selectedAppointment}
-              onComplete={() =>
-                navigate(`/doctor-side/appointment/${id}/complete`)
-              }
+              onEdit={() => setOpenEditDialog(true)}
+              onComplete={() => setShowCompleteDialog(true)}
               onCancel={() => setShowCancelDialog(true)}
+              onDelete={() => setShowDeleteDialog(true)}
               onReschedule={() => console.log('Reschedule')}
-              onAddMedicalRecord={() => setShowMedicalRecordModal(true)}
             />
           </div>
         </div>
       </div>
 
+      {/* Edit Dialog */}
+      <UniversalDialog
+        open={openEditDialog}
+        onClose={() => {
+          if (!editLoading) {
+            setOpenEditDialog(false);
+            setEditError(null);
+          }
+        }}
+        type="form"
+        title="Edit Appointment"
+        size="lg"
+      >
+        {editError && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {editError}
+          </div>
+        )}
+        <EditAppointmentForm
+          appointment={selectedAppointment}
+          onSubmit={handleEditAppointment}
+          onCancel={() => setOpenEditDialog(false)}
+          loading={editLoading}
+        />
+      </UniversalDialog>
+
       {/* Cancel Confirmation Dialog */}
       <UniversalDialog
         open={showCancelDialog}
-        onClose={() => setShowCancelDialog(false)}
+        onClose={() => !actionLoading && setShowCancelDialog(false)}
         type="confirmation"
         title="Cancel Appointment"
         message="Are you sure you want to cancel this appointment? This action cannot be undone."
@@ -132,6 +211,32 @@ const AppointmentDetails = () => {
         cancelText="No, Keep It"
         onConfirm={handleCancelAppointment}
         onCancel={() => setShowCancelDialog(false)}
+      />
+
+      {/* Complete Dialog */}
+      <UniversalDialog
+        open={showCompleteDialog}
+        onClose={() => !actionLoading && setShowCompleteDialog(false)}
+        type="confirmation"
+        title="Complete Appointment"
+        message="Mark this appointment as completed?"
+        confirmText="Mark Complete"
+        cancelText="Cancel"
+        onCancel={() => setShowCompleteDialog(false)}
+        onConfirm={handleCompleteAppointment}
+      />
+
+      {/* Delete Dialog */}
+      <UniversalDialog
+        open={showDeleteDialog}
+        onClose={() => !actionLoading && setShowDeleteDialog(false)}
+        type="confirmation"
+        title="Delete Appointment"
+        message="Are you sure you want to permanently delete this appointment? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onCancel={() => setShowDeleteDialog(false)}
+        onConfirm={handleDeleteAppointment}
       />
     </div>
   );
