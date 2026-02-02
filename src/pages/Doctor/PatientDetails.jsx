@@ -9,6 +9,8 @@ import PatientMedicalRecordsAccordion from '../../components/Doctor/PatientDetai
 import PatientActionButtons from '../../components/Doctor/PatientDetails/PatientActionButtons';
 import UniversalDialog from '../../components/UniversalDialog';
 import AppointmentBookingForm from '../../components/Doctor/AppointmentBookingForm';
+import EditPatientForm from '../../components/Doctor/EditPatientForm';
+import EditMedicalRecordForm from '../../components/Doctor/EditMedicalRecordForm';
 
 const PatientDetails = () => {
   const { id } = useParams();
@@ -21,14 +23,28 @@ const PatientDetails = () => {
     getMedicalRecordById,
     deletePatientCascade,
     bookAppointment,
+    updatePatient,
+    updateMedicalRecord,
+    deleteMedicalRecord,
   } = useDoctor();
   const navigate = useNavigate();
 
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [openBookingDialog, setOpenBookingDialog] = useState(false);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [openEditRecordDialog, setOpenEditRecordDialog] = useState(false);
+  const [openDeleteRecordDialog, setOpenDeleteRecordDialog] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingError, setBookingError] = useState(null);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState(null);
+
+  const [recordLoading, setRecordLoading] = useState(false);
+  const [recordError, setRecordError] = useState(null);
 
   useEffect(() => {
     if (id) {
@@ -75,9 +91,25 @@ const PatientDetails = () => {
     );
   }
 
+  /* ==================== PATIENT HANDLERS ==================== */
   const handleEdit = () => {
-    console.log('Edit patient:', patientDetails);
-    // TODO: Navigate to edit page or open modal
+    setOpenEditDialog(true);
+    setEditError(null);
+  };
+
+  const handleEditPatient = async (formData) => {
+    setEditLoading(true);
+    setEditError(null);
+
+    try {
+      await updatePatient(patientDetails._id, formData);
+      setOpenEditDialog(false);
+      await loadPatientDetails(id);
+    } catch (err) {
+      setEditError(err.response?.data?.message || 'Failed to update patient');
+    } finally {
+      setEditLoading(false);
+    }
   };
 
   const handleConfirmDelete = async () => {
@@ -113,6 +145,55 @@ const PatientDetails = () => {
     }
   };
 
+  /* ==================== MEDICAL RECORD HANDLERS ==================== */
+  const handleEditRecord = async (formData) => {
+    if (!selectedRecord) return;
+
+    setRecordLoading(true);
+    setRecordError(null);
+
+    try {
+      await updateMedicalRecord(selectedRecord._id, formData);
+      setOpenEditRecordDialog(false);
+      setSelectedRecord(null);
+      await getMedicalRecordById(patientDetails._id);
+    } catch (err) {
+      setRecordError(
+        err.response?.data?.message || 'Failed to update medical record',
+      );
+    } finally {
+      setRecordLoading(false);
+    }
+  };
+
+  const handleDeleteRecord = async () => {
+    if (!selectedRecord) return;
+
+    setRecordLoading(true);
+
+    try {
+      await deleteMedicalRecord(selectedRecord._id);
+      setOpenDeleteRecordDialog(false);
+      setSelectedRecord(null);
+      await getMedicalRecordById(patientDetails._id);
+    } catch (err) {
+      console.error('Delete record failed:', err);
+    } finally {
+      setRecordLoading(false);
+    }
+  };
+
+  const openEditRecordForm = (record) => {
+    setSelectedRecord(record);
+    setOpenEditRecordDialog(true);
+    setRecordError(null);
+  };
+
+  const openDeleteRecordConfirm = (record) => {
+    setSelectedRecord(record);
+    setOpenDeleteRecordDialog(true);
+  };
+
   return (
     <div className="min-h-screen bg-linear-to-br from-blue-50 via-white to-purple-50 pb-10">
       <div className="max-w-7xl mx-auto px-6 py-8">
@@ -146,7 +227,12 @@ const PatientDetails = () => {
 
             {/* Medical Records */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-              <PatientMedicalRecordsAccordion records={medicalRecords} />
+              <PatientMedicalRecordsAccordion
+                records={medicalRecords}
+                patientId={patientDetails._id}
+                onEditRecord={openEditRecordForm}
+                onDeleteRecord={openDeleteRecordConfirm}
+              />
             </div>
           </div>
 
@@ -154,6 +240,7 @@ const PatientDetails = () => {
           <div className="lg:col-span-1">
             <div className="sticky top-6">
               <PatientActionButtons
+                patient={patientDetails}
                 onBack={() => navigate('/doctor-side/list')}
                 onEdit={handleEdit}
                 onDelete={() => setOpenDeleteDialog(true)}
@@ -176,6 +263,32 @@ const PatientDetails = () => {
         onCancel={() => setOpenDeleteDialog(false)}
         onConfirm={handleConfirmDelete}
       />
+
+      {/* Edit Patient Dialog */}
+      <UniversalDialog
+        open={openEditDialog}
+        onClose={() => {
+          if (!editLoading) {
+            setOpenEditDialog(false);
+            setEditError(null);
+          }
+        }}
+        type="form"
+        title="Edit Patient"
+        size="lg"
+      >
+        {editError && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {editError}
+          </div>
+        )}
+        <EditPatientForm
+          patient={patientDetails}
+          onSubmit={handleEditPatient}
+          onCancel={() => setOpenEditDialog(false)}
+          loading={editLoading}
+        />
+      </UniversalDialog>
 
       {/* Book Appointment Dialog */}
       <UniversalDialog
@@ -238,6 +351,59 @@ const PatientDetails = () => {
           </>
         )}
       </UniversalDialog>
+
+      {/* Edit Medical Record Dialog */}
+      <UniversalDialog
+        open={openEditRecordDialog}
+        onClose={() => {
+          if (!recordLoading) {
+            setOpenEditRecordDialog(false);
+            setSelectedRecord(null);
+            setRecordError(null);
+          }
+        }}
+        type="form"
+        title="Edit Medical Record"
+        size="lg"
+      >
+        {recordError && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {recordError}
+          </div>
+        )}
+        {selectedRecord && (
+          <EditMedicalRecordForm
+            record={selectedRecord}
+            onSubmit={handleEditRecord}
+            onCancel={() => {
+              setOpenEditRecordDialog(false);
+              setSelectedRecord(null);
+            }}
+            loading={recordLoading}
+          />
+        )}
+      </UniversalDialog>
+
+      {/* Delete Medical Record Dialog */}
+      <UniversalDialog
+        open={openDeleteRecordDialog}
+        onClose={() => {
+          if (!recordLoading) {
+            setOpenDeleteRecordDialog(false);
+            setSelectedRecord(null);
+          }
+        }}
+        type="confirmation"
+        title="Delete Medical Record"
+        message="Are you sure you want to delete this medical record? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        onCancel={() => {
+          setOpenDeleteRecordDialog(false);
+          setSelectedRecord(null);
+        }}
+        onConfirm={handleDeleteRecord}
+      />
     </div>
   );
 };

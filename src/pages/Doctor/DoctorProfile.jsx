@@ -1,20 +1,49 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Edit, Star, Award, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ProfileCard from '../../components/Doctor/DoctorProfile/ProfileCard';
 import ProfessionalInfo from '../../components/Doctor/DoctorProfile/ProfessionalInfo';
 import ContactInfo from '../../components/Doctor/DoctorProfile/ContactInfo';
+import UniversalDialog from '../../components/UniversalDialog';
+import EditDoctorProfileForm from '../../components/Doctor/EditDoctorProfileForm';
 import { useDoctor } from '../../context/Doctor/useDoctor';
 
 const DoctorProfile = () => {
-  const { doctorProfile, fetchDoctorProfile, loading, error } = useDoctor();
+  const {
+    doctorProfile,
+    fetchDoctorProfile,
+    updateDoctorProfile,
+    loading,
+    error,
+  } = useDoctor();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchDoctorProfile();
-  }, [fetchDoctorProfile]);
+  const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState(null);
 
-  if (loading) {
+  useEffect(() => {
+    if (!doctorProfile) {
+      fetchDoctorProfile();
+    }
+  }, [doctorProfile, fetchDoctorProfile]);
+
+  const handleEditProfile = async (formData) => {
+    setEditLoading(true);
+    setEditError(null);
+
+    try {
+      await updateDoctorProfile(formData);
+      setOpenEditDialog(false);
+      await fetchDoctorProfile();
+    } catch (err) {
+      setEditError(err.response?.data?.message || 'Failed to update profile');
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  if (loading && !doctorProfile) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -25,7 +54,7 @@ const DoctorProfile = () => {
     );
   }
 
-  if (error) {
+  if (error && !doctorProfile) {
     return (
       <div className="mx-10 my-5">
         <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-xl">
@@ -66,7 +95,10 @@ const DoctorProfile = () => {
                 </p>
               </div>
             </div>
-            <button className="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition shadow-lg hover:shadow-xl">
+            <button
+              onClick={() => setOpenEditDialog(true)}
+              className="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition shadow-lg hover:shadow-xl"
+            >
               <Edit size={18} />
               Edit Profile
             </button>
@@ -114,6 +146,32 @@ const DoctorProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Edit Profile Dialog */}
+      <UniversalDialog
+        open={openEditDialog}
+        onClose={() => {
+          if (!editLoading) {
+            setOpenEditDialog(false);
+            setEditError(null);
+          }
+        }}
+        type="form"
+        title="Edit Profile"
+        size="xl"
+      >
+        {editError && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {editError}
+          </div>
+        )}
+        <EditDoctorProfileForm
+          doctor={doctorProfile}
+          onSubmit={handleEditProfile}
+          onCancel={() => setOpenEditDialog(false)}
+          loading={editLoading}
+        />
+      </UniversalDialog>
     </div>
   );
 };
