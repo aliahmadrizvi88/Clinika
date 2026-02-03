@@ -139,7 +139,6 @@ const DoctorProvider = ({ children }) => {
 
       try {
         const res = await api.post('/patients/addpatient', patientData);
-        console.log('✅ Patient added:', res.data);
         await fetchPatients();
         return res.data;
       } catch (err) {
@@ -165,7 +164,6 @@ const DoctorProvider = ({ children }) => {
           `/patients/updateprofile/${patientId}`,
           updateData,
         );
-        console.log('✅ Patient updated:', res.data);
 
         setPatientDetails(res.data);
         sessionStorage.setItem(
@@ -230,8 +228,6 @@ const DoctorProvider = ({ children }) => {
         );
         sessionStorage.removeItem(STORAGE_KEYS.PATIENT_DETAILS);
         sessionStorage.removeItem(STORAGE_KEYS.MEDICAL_RECORDS);
-
-        console.log('✅ Patient deleted successfully');
       } catch (err) {
         console.error('❌ Delete patient error:', err);
         setError('Failed to delete patient completely');
@@ -283,7 +279,6 @@ const DoctorProvider = ({ children }) => {
 
       try {
         const res = await api.post('/medical_records/new', recordData);
-        console.log('✅ Medical record added:', res.data);
 
         if (recordData.patient_id) {
           await getMedicalRecordById(recordData.patient_id);
@@ -313,7 +308,6 @@ const DoctorProvider = ({ children }) => {
           `/medical_records/update/${recordId}`,
           updateData,
         );
-        console.log('✅ Medical record updated:', res.data);
 
         if (patientDetails?._id) {
           await getMedicalRecordById(patientDetails._id);
@@ -342,7 +336,6 @@ const DoctorProvider = ({ children }) => {
 
       try {
         await api.delete(`/medical_records/delete/${recordId}`);
-        console.log('✅ Medical record deleted');
 
         if (patientDetails?._id) {
           await getMedicalRecordById(patientDetails._id);
@@ -477,10 +470,7 @@ const DoctorProvider = ({ children }) => {
           notes: appointmentData.notes || '',
         };
 
-        console.log('📤 Booking appointment:', payload);
-
         const res = await api.post('/bookings/new', payload);
-        console.log('✅ Appointment booked:', res.data);
 
         await fetchAppointment();
         return res.data;
@@ -507,7 +497,6 @@ const DoctorProvider = ({ children }) => {
           `/bookings/update/${appointmentId}`,
           updateData,
         );
-        console.log('✅ Appointment updated:', res.data);
 
         await fetchAppointment();
 
@@ -538,7 +527,6 @@ const DoctorProvider = ({ children }) => {
         const res = await api.patch(`/bookings/update/${appointmentId}`, {
           status: 'Cancelled',
         });
-        console.log('✅ Appointment cancelled:', res.data);
 
         await fetchAppointment();
 
@@ -572,7 +560,6 @@ const DoctorProvider = ({ children }) => {
         const res = await api.patch(`/bookings/update/${appointmentId}`, {
           status: 'Completed',
         });
-        console.log('✅ Appointment completed:', res.data);
 
         await fetchAppointment();
 
@@ -606,7 +593,6 @@ const DoctorProvider = ({ children }) => {
 
       try {
         await api.delete(`/bookings/delete/${appointmentId}`);
-        console.log('✅ Appointment deleted');
 
         await fetchAppointment();
 
@@ -663,7 +649,6 @@ const DoctorProvider = ({ children }) => {
           `/doctors/updateprofile/${doctorId}`,
           updateData,
         );
-        console.log('✅ Doctor profile updated:', res.data);
 
         setDoctorProfile(res.data);
         sessionStorage.setItem(

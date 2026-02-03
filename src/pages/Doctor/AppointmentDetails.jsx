@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useDoctor } from '../../context/Doctor/useDoctor';
 import UniversalDialog from '../../components/UniversalDialog';
 import EditAppointmentForm from '../../components/Doctor/EditAppointmentForm';
+import AddMedicalRecordForm from '../../components/Doctor/AddMedicalRecordForm';
+import RescheduleAppointmentForm from '../../components/Doctor/RescheduleAppointmentForm';
 
 import AppointmentHeader from '../../components/Doctor/AppointmentDetails/AppointmentHeader';
 import AppointmentInfoCard from '../../components/Doctor/AppointmentDetails/AppointmentInfoCard';
@@ -21,6 +23,7 @@ const AppointmentDetails = () => {
     cancelAppointment,
     completeAppointment,
     deleteAppointment,
+    addMedicalRecord,
     loading,
     error,
   } = useDoctor();
@@ -29,10 +32,16 @@ const AppointmentDetails = () => {
   const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [showMedicalRecordModal, setShowMedicalRecordModal] = useState(false);
+  const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
 
   const [editLoading, setEditLoading] = useState(false);
   const [editError, setEditError] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [recordLoading, setRecordLoading] = useState(false);
+  const [recordError, setRecordError] = useState(null);
+  const [rescheduleLoading, setRescheduleLoading] = useState(false);
+  const [rescheduleError, setRescheduleError] = useState(null);
 
   useEffect(() => {
     if (id) {
@@ -92,6 +101,49 @@ const AppointmentDetails = () => {
     } catch (err) {
       console.error('Delete failed:', err);
       setActionLoading(false);
+    }
+  };
+
+  const handleAddMedicalRecord = async (formData) => {
+    setRecordLoading(true);
+    setRecordError(null);
+
+    try {
+      const patientId =
+        selectedAppointment.patient_id?._id || selectedAppointment.patient_id;
+
+      const payload = {
+        ...formData,
+        patient_id: patientId,
+        booking_id: selectedAppointment._id,
+      };
+
+      await addMedicalRecord(payload);
+      setShowMedicalRecordModal(false);
+      await loadAppointmentDetails(id);
+    } catch (err) {
+      setRecordError(
+        err.response?.data?.message || 'Failed to add medical record',
+      );
+    } finally {
+      setRecordLoading(false);
+    }
+  };
+
+  const handleRescheduleAppointment = async (formData) => {
+    setRescheduleLoading(true);
+    setRescheduleError(null);
+
+    try {
+      await updateAppointment(selectedAppointment._id, formData);
+      setShowRescheduleDialog(false);
+      await loadAppointmentDetails(id);
+    } catch (err) {
+      setRescheduleError(
+        err.response?.data?.message || 'Failed to reschedule appointment',
+      );
+    } finally {
+      setRescheduleLoading(false);
     }
   };
 
@@ -157,7 +209,10 @@ const AppointmentDetails = () => {
           <div className="lg:col-span-2 space-y-6">
             <AppointmentInfoCard appointment={selectedAppointment} />
             {patient && <AppointmentPatientCard patient={patient} />}
-            <AppointmentMedicalRecords records={medicalRecords} />
+            <AppointmentMedicalRecords
+              records={medicalRecords}
+              onAddRecord={() => setShowMedicalRecordModal(true)}
+            />
           </div>
 
           {/* Right Column - Actions */}
@@ -168,7 +223,7 @@ const AppointmentDetails = () => {
               onComplete={() => setShowCompleteDialog(true)}
               onCancel={() => setShowCancelDialog(true)}
               onDelete={() => setShowDeleteDialog(true)}
-              onReschedule={() => console.log('Reschedule')}
+              onReschedule={() => setShowRescheduleDialog(true)}
             />
           </div>
         </div>
@@ -197,6 +252,35 @@ const AppointmentDetails = () => {
           onSubmit={handleEditAppointment}
           onCancel={() => setOpenEditDialog(false)}
           loading={editLoading}
+        />
+      </UniversalDialog>
+
+      {/* Add Medical Record Dialog */}
+      <UniversalDialog
+        open={showMedicalRecordModal}
+        onClose={() => {
+          if (!recordLoading) {
+            setShowMedicalRecordModal(false);
+            setRecordError(null);
+          }
+        }}
+        type="form"
+        title="Add Medical Record"
+        size="lg"
+      >
+        {recordError && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {recordError}
+          </div>
+        )}
+        <AddMedicalRecordForm
+          patientId={
+            selectedAppointment.patient_id?._id ||
+            selectedAppointment.patient_id
+          }
+          onSubmit={handleAddMedicalRecord}
+          onCancel={() => setShowMedicalRecordModal(false)}
+          loading={recordLoading}
         />
       </UniversalDialog>
 
@@ -238,6 +322,32 @@ const AppointmentDetails = () => {
         onCancel={() => setShowDeleteDialog(false)}
         onConfirm={handleDeleteAppointment}
       />
+
+      {/* Reschedule Dialog */}
+      <UniversalDialog
+        open={showRescheduleDialog}
+        onClose={() => {
+          if (!rescheduleLoading) {
+            setShowRescheduleDialog(false);
+            setRescheduleError(null);
+          }
+        }}
+        type="form"
+        title="Reschedule Appointment"
+        size="md"
+      >
+        {rescheduleError && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {rescheduleError}
+          </div>
+        )}
+        <RescheduleAppointmentForm
+          appointment={selectedAppointment}
+          onSubmit={handleRescheduleAppointment}
+          onCancel={() => setShowRescheduleDialog(false)}
+          loading={rescheduleLoading}
+        />
+      </UniversalDialog>
     </div>
   );
 };
