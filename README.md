@@ -328,6 +328,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 **Frontend Developer:** Syed Ali Ahmad Rizvi
 **Email:** aliahmadrizvi88@gmail.com  
 **GitHub:** [@aliahmadrizvi88](https://github.com/aliahmadrizvi88)
+**Deployed On:** [https://clinika-opal.vercel.app/](https://clinika-opal.vercel.app/)
 
 **Backend Developer:** Amjad Khan Niazi  
 **GitHub:** [@amjadkhanniazi](https://github.com/amjadkhanniazi)
