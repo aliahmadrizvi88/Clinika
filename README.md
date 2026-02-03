@@ -10,15 +10,10 @@ A comprehensive web-based clinic management system designed to streamline medica
 
 ## ⚠️ **IMPORTANT NOTICE**
 
-**This project is currently under active development and is in the fixing/testing phase.**
+**This project is Completed but some bugs and error are still there and will be fixed.**
 
-- 🚧 Some features may not work as expected
 - 🐛 Bugs and errors are being actively identified and fixed
 - 📝 Documentation is being continuously updated
-- ⚡ Breaking changes may occur without prior notice
-- 🔒 Not recommended for production use at this stage
-
-**USE AT YOUR OWN RISK** - This application is not yet stable for production environments.
 
 ---
 
@@ -320,7 +315,7 @@ Contributions are welcome! However, please note:
 - [ ] Mobile app
 - [ ] Multi-clinic support
 
----
+  ***
 
 ## 📄 License
 
