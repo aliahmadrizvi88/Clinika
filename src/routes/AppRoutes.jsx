@@ -3,6 +3,7 @@ import { Routes, Route } from 'react-router-dom';
 //Patient Routes
 import Home from '../pages/Patient/Home';
 import DoctorPortfolio from '../pages/Patient/DoctorPortfolio';
+import DoctorsDetails from '../pages/Patient/DoctorsDetails';
 import Blog from '../pages/Patient/Blog';
 import Contact from '../pages/Patient/Contact';
 
@@ -32,6 +33,7 @@ const AppRoutes = () => {
       <Route path="/" element={<PatientLayout />}>
         <Route index element={<Home />} />
         <Route path="/doctors" element={<DoctorPortfolio />} />
+        <Route path="/doctors/:id" element={<DoctorsDetails />} />
         <Route path="/blogs" element={<Blog />} />
         <Route path="/contact" element={<Contact />} />
       </Route>

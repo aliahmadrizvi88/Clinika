@@ -2,7 +2,7 @@
 
 A comprehensive web-based clinic management system designed to streamline medical practice operations, patient management, and appointment scheduling.
 
-![Project Status](https://img.shields.io/badge/Status-Under%20Development-yellow)
+![Project Status](https://img.shields.io/badge/Status-Completed%20-green)
 ![Frontend](https://img.shields.io/badge/Frontend-React-blue)
 ![Backend](https://img.shields.io/badge/Backend-Node.js-green)
 
